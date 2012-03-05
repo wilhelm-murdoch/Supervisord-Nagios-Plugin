@@ -13,6 +13,7 @@ usage
 """
 from optparse import OptionParser
 import os
+import sys
 
 #nagios return codes
 UNKNOWN = -1
@@ -38,20 +39,20 @@ def get_status(proc_name):
     try:
         status_output = os.popen('%s %s' % (SUPERV_STAT_CHECK, proc_name)).read()
         proc_status = status_output.split()[1]
-        return (status_output, supervisor_states[proc_status])
+    if proc_status not in supervisor_states:
+		proc_status = UNKNOWN
+        return (proc_name, supervisor_states[proc_status], proc_status)
     except:
-        print "CRITICAL: Could not get status of %s" % proc_name
+        print "CRITICAL, Could not get status of %s" % proc_name
         raise SystemExit, CRITICAL
 
 parser = OptionParser()
-parser.add_option('-p', '--processes-name', dest='proc_name',
-    help="Name of process as it appears in supervisorctl status")
-parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
-    default=False)
+parser.add_option('-p', '--processes-name', dest='proc_name', help="Name of process as it appears in supervisorctl status")
+parser.add_option('-v', '--verbose', dest='verbose', action='store_true', default=False)
 parser.add_option('-q', '--quiet', dest='verbose', action='store_false')
 
 options, args = parser.parse_args()
 
 output = get_status(options.proc_name)
-print output[0]
+print "%s, %s" % (output[2], output[0])
 raise SystemExit, output[1]
