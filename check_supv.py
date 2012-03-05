@@ -39,8 +39,8 @@ def get_status(proc_name):
     try:
         status_output = os.popen('%s %s' % (SUPERV_STAT_CHECK, proc_name)).read()
         proc_status = status_output.split()[1]
-    if proc_status not in supervisor_states:
-        proc_status = UNKNOWN
+        if proc_status not in supervisor_states:
+            proc_status = UNKNOWN
         return (proc_name, supervisor_states[proc_status], proc_status)
     except:
         print "CRITICAL, Could not get status of %s" % proc_name
